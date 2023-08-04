@@ -10,7 +10,7 @@ class DataFrameNamePair:
         self.name = name
 
 
-def get_all_dataframes(folder_name: str):
+def get_all_dataframe_pairs(folder_name: str):
     """
     Creates dataframes from all excel files in target folder
     :param folder_name: name of target folder
@@ -18,6 +18,7 @@ def get_all_dataframes(folder_name: str):
     try:
         all_excels = os.listdir(folder_name)
         all_dataframes = []
+
         for filename in all_excels:
             try:
                 df_pair = DataFrameNamePair(
@@ -26,19 +27,19 @@ def get_all_dataframes(folder_name: str):
                 )
                 all_dataframes.append(df_pair)
             except IsADirectoryError:
+                # Skip if not an Excel file
                 continue
 
         return all_dataframes
     except FileNotFoundError:
-        print(f"folder {folder_name} not found")
-        raise FileNotFoundError
+        raise IOError(f"folder {folder_name} not found")
 
 
 def build_create_table(table_pair: DataFrameNamePair) -> str:
     column_strings = []
     table_name, table_frame = table_pair.name, table_pair.data_frame
     for column, datatype in zip(table_frame.columns, table_frame.dtypes):
-        new_name = "_".join(column.casefold().split(" "))
+        new_name = "_".join(column.casefold().split(" ")).replace("'", "")
         column_strings.append(f"{new_name} {sql_types[str(datatype)]}")
 
     joined_column_strings = ",\n".join(column_strings)
@@ -46,14 +47,20 @@ def build_create_table(table_pair: DataFrameNamePair) -> str:
 
 
 def build_sql_statements(folder_name: str):
-    all_dataframes = get_all_dataframes(folder_name)
-    for table_pair in all_dataframes:
-        build_create_table(table_pair)
+    all_frame_pairs = get_all_dataframe_pairs(folder_name)
+    sql_commands = []
+
+    for table_pair in all_frame_pairs:
+        sql_commands.append(build_create_table(table_pair))
+
+    return sql_commands
 
 
 if __name__ == '__main__':
     try:
-        build_sql_statements("./RespondD")  # TODO: make this take a command line arg
-    except FileNotFoundError:
-        pass
+        with open("./output/db_config.sql", "w") as sql_config:
+            for statement in build_sql_statements("./RespondDB"): # TODO: make this take a command line arg
+                sql_config.write(statement + "\n")
+    except IOError as e:
+        print(e)
 
