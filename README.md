@@ -1,5 +1,5 @@
 # ExcelToSql
-Python program which creates sql commands to create tables and insert data from excel files.
+Python script which creates sql commands to create tables and insert data from excel files.
 
 ## How to use
 - Create a folder named 'target' and load all excel files into it
