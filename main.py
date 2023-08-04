@@ -39,19 +39,39 @@ def build_create_table(table_pair: DataFrameNamePair) -> str:
     column_strings = []
     table_name, table_frame = table_pair.name, table_pair.data_frame
     for column, datatype in zip(table_frame.columns, table_frame.dtypes):
-        new_name = "_".join(column.casefold().split(" ")).replace("'", "")
+        new_name = ("_".join(column.casefold()
+                    .split(" ")).replace("'", "")
+                    .replace("(", "")
+                    .replace(")", ""))
         column_strings.append(f"{new_name} {sql_types[str(datatype)]}")
 
     joined_column_strings = ",\n".join(column_strings)
     return f"CREATE TABLE {table_name} (\n{joined_column_strings}\n);"
 
 
-def build_sql_statements(folder_name: str):
+def build_insert_statement(table_pair: DataFrameNamePair) -> str:
+    table_name, table_frame = table_pair.name, table_pair.data_frame
+    row_strings = []
+
+    for row in table_frame.values:
+        for (value, datatype) in zip(row, table_frame.dtypes):
+            if pd.isna(value):
+                row_strings.append("NULL")
+            else:
+                row_strings.append(f"{str(value)}")
+
+    joined_row_strings = ",\n".join(row_strings)
+    return f"INSERT INTO {table_name}\nVALUES (\n{joined_row_strings}\n)"
+
+
+def build_sql_statements(folder_name: str) -> list[str]:
     all_frame_pairs = get_all_dataframe_pairs(folder_name)
     sql_commands = []
 
     for table_pair in all_frame_pairs:
         sql_commands.append(build_create_table(table_pair))
+        if len(table_pair.data_frame.values):
+            sql_commands.append(build_insert_statement(table_pair))
 
     return sql_commands
 
@@ -59,8 +79,9 @@ def build_sql_statements(folder_name: str):
 if __name__ == '__main__':
     try:
         with open("./output/db_config.sql", "w") as sql_config:
-            for statement in build_sql_statements("./RespondDB"): # TODO: make this take a command line arg
-                sql_config.write(statement + "\n")
+            for statement in build_sql_statements("./RespondDB"):  # TODO: make this take a command line arg
+                if statement:
+                    sql_config.write(statement + "\n")
     except IOError as e:
         print(e)
 
