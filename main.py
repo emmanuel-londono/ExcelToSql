@@ -82,7 +82,7 @@ def build_sql_statements(folder_name: str) -> list[str]:
 if __name__ == '__main__':
     try:
         with open("./output/db_config.sql", "w") as sql_config:
-            for statement in build_sql_statements("./all_excels"):  # TODO: make this take a command line arg
+            for statement in build_sql_statements("./target"):  # TODO: make this take a command line arg
                 if statement:
                     sql_config.write(statement + "\n")
     except IOError as e:
