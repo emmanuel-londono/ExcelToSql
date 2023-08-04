@@ -43,7 +43,14 @@ def build_create_table(table_pair: DataFrameNamePair) -> str:
                     .split(" "))
                     .replace("'", "")
                     .replace("(", "")
-                    .replace(")", ""))
+                    .replace(")", "")
+                    .replace(":", "")
+                    .replace("=", "_")
+                    .replace(".", "_")
+                    .replace("-", "_")
+                    .replace("/", "_")
+                    .replace(",", "_")
+                    .replace("where", "location")) # where is a
         column_strings.append(f"{new_name} {sql_types[str(datatype)]}")
 
     joined_column_strings = ",\n".join(column_strings)
@@ -59,8 +66,12 @@ def build_insert_statements(table_pair: DataFrameNamePair) -> str:
         for (value, datatype) in zip(row, table_frame.dtypes):
             if pd.isna(value):
                 all_values.append("NULL")
+            elif datatype == 'object' or datatype == "datetime64[ns]":
+                new_string = str(value).replace("'", "\'\'").replace("\\", "/")
+                all_values.append(f"'{new_string}'")
             else:
-                all_values.append(f"'{str(value)}'")
+                all_values.append(str(value))
+
         values_str = ",\n".join(all_values)
         row_strings.append(f"INSERT INTO {table_name}\nVALUES (\n{values_str}\n);")
     joined_row_strings = "\n".join(row_strings)
