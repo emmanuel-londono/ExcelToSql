@@ -2,10 +2,9 @@
 Python program that builds sql commands from excel files.
 
 ## How to use
-- Create a folder named 'target' and load all excel files into it
-- Create a separate folder named 'output'
+- Load all excel files into the 'target' folder
 - The program will run through each excel file to build CREATE TABLE and INSERT INTO statements with the given table data
-- SQL statements will be generated and placed in ./output/db_config.sql
+- SQL statements will be generated and placed in the output folder: ./output/db_config.sql
 
 
 ### Creating an exe
