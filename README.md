@@ -15,4 +15,4 @@ Python program that builds sql commands from excel files.
 
 ### future features
 - run from the command line on a target directory
-- repo will include target and output folders
+
