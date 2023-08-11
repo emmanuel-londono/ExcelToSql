@@ -1,2 +1,5 @@
 *.xlsx
 *.sql
+WindowsPowerShell/
+build/
+dist/
