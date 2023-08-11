@@ -5,7 +5,7 @@ tkWindow = tk.Tk()
 tkWindow.withdraw()
 
 def message1 () : 
-   return  messagebox.showinfo("ExcelToSQL: Message","First, load all excel files into the target folder. Then, press the 'Cancel' button.)  
+   return  messagebox.showinfo("ExcelToSQL: Message","First, load all excel files into the target folder. Then, press the 'Cancel' button.")  
 def message2() :
    return messagebox.showinfo("ExcelToSQL: Message", "Now, select the target folder.") 
 def successMessage():
